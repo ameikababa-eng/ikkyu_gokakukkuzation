@@ -6,18 +6,18 @@
 <title>一級建築士 学科ガント 2026/01-07</title>
 <style>
   :root{
-    --bg:#0b1220; --card:#111a2e; --line:#22304f; --text:#e8eefc; --muted:#a9b7d6;
+    --bg:var(--card); --card:#111a2e; --line:#22304f; --text:#e8eefc; --muted:#a9b7d6;
     --neon1:#7c3aed; --neon2:#22d3ee;
   }
-  body{margin:0;font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Noto Sans JP","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;}
   .wrap{max-width:1200px;margin:0 auto;padding:16px;}
   h1{font-size:18px;margin:0 0 10px;}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
   .grid{display:grid;gap:12px;}
   @media(min-width:1000px){ .grid{grid-template-columns: 1.2fr 0.8fr;} }
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);}
   .muted{color:var(--muted);}
-  .pill{border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:12px;}
+  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:rgba(242,201,76,.22);padding:4px 10px;border-radius:999px;font-size:12px;}
   .pill.ok{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.35);}
   .pill.warn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.35);}
   .pill.bad{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);}
@@ -66,12 +66,58 @@
   .fill.env{background:rgba(251,146,60,.55);}
   .fill.plan{background:rgba(34,211,238,.55);}
   .todayMark{outline:2px solid rgba(255,0,0,.7);}
+
+  .hit{background:rgba(242,201,76,.35);} .hit2{background:rgba(111,207,151,.20);} 
+
+details summary:hover{background:rgba(0,0,0,.02);border-radius:10px;}
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>一級建築士 学科ガント（2026/01/05〜2026/07/31）</h1>
-  <div class="row muted" id="subhead"></div>
+  <div class="row muted" id="subhead"></div></div>
+    <div style="margin-top:10px;overflow:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:70px;">月</th>
+            <th style="min-width:220px;">重点（主役）</th>
+            <th style="min-width:220px;">維持（通勤・回転）</th>
+            <th style="min-width:120px;">目標点</th>
+            <th style="min-width:240px;">マイルストーン</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1月</td><td><b>法規・構造</b></td><td>施工・環境・計画（薄く）</td><td><b>70〜75</b></td><td>主要2科目を作る／基礎の再点火</td></tr>
+          <tr><td>2月</td><td><b>法規・施工</b>（＋構造の得点化）</td><td>環境・計画</td><td><b>80〜88</b></td><td>模試①（中旬）：準リーチ</td></tr>
+          <tr><td>3月</td><td><b>全科目（回転）</b></td><td>—</td><td><b>90〜95</b></td><td>模試②（上旬）：合格点リーチ／月末：安定</td></tr>
+          <tr><td>4月</td><td><b>網羅＋穴埋め</b></td><td>回転継続</td><td><b>92〜96</b></td><td>未着手プリント回収（該当箇所のみ）</td></tr>
+          <tr><td>5月</td><td><b>過去問・模試で弱点抽出</b></td><td>回転継続</td><td><b>93〜97</b></td><td>失点パターン固定（落とし方修正）</td></tr>
+          <tr><td>6月</td><td><b>実戦（時間配分）</b></td><td>回転継続</td><td><b>94〜98</b></td><td>模試③（あれば）：安定確認</td></tr>
+          <tr><td>7月</td><td><b>直前総合（崩さない）</b></td><td>体調・リズム優先</td><td><b>94〜98</b></td><td>直前調整のみ（新規は最小）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="muted" style="margin-top:10px;margin-bottom:6px;">ざっくり重点ガント（色付き＝重点／薄色＝維持）</div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:90px;">科目</th>
+            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>7月</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>法規</td><td class="hit"></td><td class="hit"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>構造</td><td class="hit"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>施工</td><td class="hit2"></td><td class="hit"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>環境</td><td class="hit2"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>計画</td><td class="hit2"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:6px;">hit＝重点（主役）／hit2＝維持（回転・通勤）</div>
+    </div>
+  </div>
+
 
   <div class="grid" style="margin-top:12px;">
     <div class="card">
@@ -108,7 +154,7 @@
 
         <div id="weekCommand" style="margin-top:10px;"></div>
 
-        <div class="card" style="margin-top:12px;background:#0b1220;">
+        <div class="card" style="margin-top:12px;background:var(--card);">
           <b>通勤パック（状態：週の維持）</b>
           <div class="muted" style="margin-top:6px;">通勤は“タスク”ではなく“状態”。必要なものは上の「今週の持ち物」に集約。</div>
           <div id="commutePack" style="margin-top:10px;" class="muted"></div>
@@ -125,7 +171,7 @@
             <span class="muted">表示：</span>
             <select id="dailySpan">
               <option value="28">28日（4週）</option>
-              <option value="14">14日（2週）</option>
+              <option value="14" selected>14日（2週）</option>
               <option value="7">7日（1週）</option>
             </select>
             <span class="muted">科目：</span>
@@ -166,9 +212,71 @@
         </div>
 
         <details style="margin-top:12px;">
-          <summary class="muted">週次ToDo（4週先まで）</summary>
-          <div id="weekList" style="margin-top:10px;"></div>
+          <summary class="muted">週次ToDo（デフォルト：2週先まで／必要なら全期間表示）</summary>
+          <div class="row" style="margin-top:8px;gap:8px;align-items:center;"><label class="muted" style="display:flex;gap:8px;align-items:center;"><input type="checkbox" id="showAllWeeks" /> 全期間を表示（チェックなし＝2週先まで）</label></div><div id="weekList" style="margin-top:10px;"></div>
         </details>
+  <details class="card" style="margin-top:12px;">
+    <summary style="cursor:pointer;">
+      <span style="font-weight:700;">週次ガント（全体）</span>
+      <span class="muted" style="margin-left:8px;">週ごとの負荷をざっくり可視化</span>
+    </summary>
+    <div style="margin-top:10px;overflow:auto;">
+      <div class="row" style="gap:10px;align-items:center;">
+        <label class="muted" style="display:flex;gap:8px;align-items:center;">
+          <input type="checkbox" id="wgOnlyNext" checked /> デフォルト：直近4週のみ
+        </label>
+      </div>
+      <div id="weeklyGantt" style="margin-top:10px;"></div>
+    </div>
+  </details>
+
+  <div class="card" style="margin-top:12px;">
+    <div>
+      <div style="font-size:16px;font-weight:700;">月次ロードマップ（〜7月）</div>
+      <div class="muted" style="margin-top:4px;">重点科目／維持科目／目標点（総合）を月単位で確認できます。</div>
+    </div>
+    <div style="margin-top:10px;overflow:auto;">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:70px;">月</th>
+            <th style="min-width:220px;">重点（主役）</th>
+            <th style="min-width:220px;">維持（通勤・回転）</th>
+            <th style="min-width:120px;">目標点</th>
+            <th style="min-width:240px;">マイルストーン</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1月</td><td><b>法規・構造</b></td><td>施工・環境・計画（薄く）</td><td><b>70〜75</b></td><td>主要2科目を作る／基礎の再点火</td></tr>
+          <tr><td>2月</td><td><b>法規・施工</b>（＋構造の得点化）</td><td>環境・計画</td><td><b>80〜88</b></td><td>模試①（中旬）：準リーチ</td></tr>
+          <tr><td>3月</td><td><b>全科目（回転）</b></td><td>—</td><td><b>90〜95</b></td><td>模試②（上旬）：合格点リーチ／月末：安定</td></tr>
+          <tr><td>4月</td><td><b>網羅＋穴埋め</b></td><td>回転継続</td><td><b>92〜96</b></td><td>未着手プリント回収（該当箇所のみ）</td></tr>
+          <tr><td>5月</td><td><b>過去問・模試で弱点抽出</b></td><td>回転継続</td><td><b>93〜97</b></td><td>失点パターン固定（落とし方修正）</td></tr>
+          <tr><td>6月</td><td><b>実戦（時間配分）</b></td><td>回転継続</td><td><b>94〜98</b></td><td>模試③（あれば）：安定確認</td></tr>
+          <tr><td>7月</td><td><b>直前総合（崩さない）</b></td><td>体調・リズム優先</td><td><b>94〜98</b></td><td>直前調整のみ（新規は最小）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="muted" style="margin-top:10px;margin-bottom:6px;">ざっくり重点ガント（色付き＝重点／薄色＝維持）</div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th style="min-width:90px;">科目</th>
+            <th>1月</th><th>2月</th><th>3月</th><th>4月</th><th>5月</th><th>6月</th><th>7月</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>法規</td><td class="hit"></td><td class="hit"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>構造</td><td class="hit"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>施工</td><td class="hit2"></td><td class="hit"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>環境</td><td class="hit2"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+          <tr><td>計画</td><td class="hit2"></td><td class="hit2"></td><td class="hit"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td><td class="hit2"></td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:6px;">hit＝重点（主役）／hit2＝維持（回転・通勤）</div>
+    </div>
+  </div>
+
       </div>
 
     </div>
@@ -198,7 +306,7 @@ const DATA = {"projectStart": "2026-01-05", "projectEnd": "2026-07-31", "weeks":
 
 const TAG_CLASS = { "法規":"law", "構造":"str", "施工":"con", "環境":"env", "計画":"plan" };
 const SUBJECTS = ["法規","構造","施工","環境","計画"];
-const TASKS = DATA.tasks; // commute は除去済み
+const TASKS = expandTasksForDisplay(DATA.tasks); // commute は除去済み（表示用に展開）
 
 const LS_DONE = "ikkkyu_done_map_2026_v4";
 const LS_CARRY = "ikkkyu_carry_2026_v4";
@@ -244,6 +352,21 @@ function weekNoOf(date){
   const w = Math.floor(diff/7) + 1;
   return Math.min(Math.max(w,1), DATA.weeks.length);
 }
+
+// ---- Task row expansion (for detailed gantt rows) ----
+// User inputs two lines explicitly when needed (e.g., 法規は予習行・演習行を別タスクで記載).
+// We keep tasks as-is (no auto-splitting).
+function expandTasksForDisplay(tasks){
+  const out = [];
+  for(const x of (tasks||[])){
+    out.push({...x, rowKey: x.id, rowLabel: x.text});
+  }
+  return out;
+}
+
+
+
+
 
 function commutePackHTML(){
   return `
@@ -431,8 +554,9 @@ function renderWeekList(done, fSubj, fStat){
   const w = weekNoOf(TODAY);
   const list = document.getElementById("weekList");
   list.innerHTML = "";
-  const from = w;
-  const to = Math.min(w+4, DATA.weeks.length);
+  const showAll = document.getElementById("showAllWeeks")?.checked;
+  const from = showAll ? 1 : w;
+  const to = showAll ? DATA.weeks.length : Math.min(w+2, DATA.weeks.length);
 
   for (let wk=from; wk<=to; wk++) {
     const info = DATA.weeks[wk-1];
@@ -444,7 +568,7 @@ function renderWeekList(done, fSubj, fStat){
 
     const block = document.createElement("div");
     block.className="card";
-    block.style.background="#0b1220";
+    block.style.background="var(--card)";
     block.style.borderRadius="12px";
     block.style.padding="10px";
     block.style.margin="0 0 10px 0";
@@ -472,6 +596,50 @@ function renderWeekList(done, fSubj, fStat){
   });
 }
 
+
+function renderWeeklyGantt(){
+  const box = document.getElementById("weeklyGantt");
+  if(!box) return;
+  const onlyNext = document.getElementById("wgOnlyNext")?.checked;
+  const wNow = weekNoOf(TODAY);
+  const weeks = DATA.weeks || [];
+  const from = onlyNext ? wNow : 1;
+  const to = onlyNext ? Math.min(wNow+4, weeks.length) : weeks.length;
+
+  const subjects = (DATA.subjects||[]);
+  const rows = [];
+  for(let wi=from; wi<=to; wi++){
+    const info = weeks[wi-1];
+    const ws = new Date(info.start), we = new Date(info.end);
+    const bySub = {};
+    for(const sub of subjects) bySub[sub]=0;
+    for(const t of TASKS){
+      const ts = new Date(t.start), te = new Date(t.end);
+      if(te < ws || ts > we) continue;
+      if(bySub[t.subj]!==undefined) bySub[t.subj] += 1;
+    }
+    rows.push({wi, start: info.start, end: info.end, bySub});
+  }
+
+  let h = '<table class="tbl"><thead><tr><th style="min-width:90px;">週</th>';
+  for(const sub of subjects){ h += `<th style="min-width:120px;">${escapeHtml(sub)}</th>`; }
+  h += '</tr></thead><tbody>';
+
+  for(const r of rows){
+    h += `<tr><td>W${r.wi}<div class="muted" style="font-size:11px;">${mmdd(new Date(r.start))}〜${mmdd(new Date(r.end))}</div></td>`;
+    for(const sub of subjects){
+      const n = r.bySub[sub]||0;
+      const w = Math.min(100, n*25);
+      const c = (SUBJ_COLOR && SUBJ_COLOR[sub]) ? SUBJ_COLOR[sub] : "rgba(242,201,76,.35)";
+      h += `<td><div style="height:10px;border-radius:999px;background:rgba(0,0,0,.06);overflow:hidden;">`+
+           `<div style="height:10px;width:${w}%;background:${c};opacity:.9;"></div></div>`+
+           `<div class="muted" style="font-size:11px;margin-top:4px;">${n? (n+'件'): ''}</div></td>`;
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table>';
+  box.innerHTML = h;
+}
 function render(){
   const done = loadJson(LS_DONE);
   const carry = loadJson(LS_CARRY);
@@ -502,6 +670,7 @@ function render(){
 
   renderDaily(done, fSubj, fStat);
   renderWeekList(done, fSubj, fStat);
+  renderWeeklyGantt();
   renderBars(done);
   renderLate(done);
 }
