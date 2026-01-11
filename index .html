@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>一級建築士 学科ガント 2026/01-07</title>
+<style>
+  :root{
+    --bg:#0b1220; --card:#111a2e; --line:#22304f; --text:#e8eefc; --muted:#a9b7d6;
+    --neon1:#7c3aed; --neon2:#22d3ee;
+  }
+  body{margin:0;font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;background:var(--bg);color:var(--text);}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px;}
+  h1{font-size:18px;margin:0 0 10px;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .grid{display:grid;gap:12px;}
+  @media(min-width:1000px){ .grid{grid-template-columns: 1.2fr 0.8fr;} }
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;}
+  .muted{color:var(--muted);}
+  .pill{border:1px solid var(--line);padding:4px 10px;border-radius:999px;font-size:12px;}
+  .pill.ok{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.35);}
+  .pill.warn{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.35);}
+  .pill.bad{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.35);}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;}
+  select,input[type="text"]{background:#0f1730;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px;}
+  button{background:#0f1730;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:pointer;}
+  button:hover{border-color:#3a4b74;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{border-top:1px solid var(--line);padding:8px;vertical-align:top;}
+  th{color:var(--muted);text-align:left;font-weight:600;}
+
+  .bar{height:10px;border-radius:999px;background:#0f1730;border:1px solid var(--line);overflow:hidden;}
+  .bar > div{height:100%;background:#64748b;}
+  .barline{display:grid;grid-template-columns: 110px 1fr 52px;gap:10px;align-items:center;margin:8px 0;}
+
+  .tag{display:inline-block;font-size:11px;border-radius:8px;padding:2px 8px;margin-right:6px;border:1px solid transparent;}
+  .tag.law{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.35);}
+  .tag.str{background:rgba(239,68,68,.18);border-color:rgba(239,68,68,.35);}
+  .tag.con{background:rgba(59,130,246,.18);border-color:rgba(59,130,246,.35);}
+  .tag.env{background:rgba(251,146,60,.18);border-color:rgba(251,146,60,.35);}
+  .tag.plan{background:rgba(34,211,238,.18);border-color:rgba(34,211,238,.35);}
+
+  .neonBox{
+    border:1px solid rgba(124,58,237,.6);
+    background:linear-gradient(135deg, rgba(124,58,237,.25), rgba(34,211,238,.18));
+    box-shadow: 0 0 18px rgba(124,58,237,.25), 0 0 22px rgba(34,211,238,.18);
+    border-radius:14px;padding:10px;
+  }
+  .neonTag{
+    display:inline-block;font-size:11px;border-radius:999px;padding:2px 10px;
+    background:rgba(124,58,237,.35);border:1px solid rgba(124,58,237,.75);
+    box-shadow:0 0 10px rgba(124,58,237,.35);
+    margin-right:6px;
+  }
+
+  details summary{cursor:pointer;}
+
+  .tl-head{display:grid;grid-template-columns: 90px 1fr;gap:10px;align-items:center;margin:6px 0;}
+  .tl-grid{display:grid;grid-auto-flow:column;grid-auto-columns: 24px;gap:4px;align-items:center;}
+  .cell{height:18px;border:1px solid var(--line);border-radius:8px;background:#0f1730;overflow:hidden;position:relative;}
+  .cell .lbl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(232,238,252,.75);line-height:1.05;text-align:center;}
+  .fill{height:100%;border-radius:8px;}
+  .fill.law{background:rgba(34,197,94,.55);}
+  .fill.str{background:rgba(239,68,68,.55);}
+  .fill.con{background:rgba(59,130,246,.55);}
+  .fill.env{background:rgba(251,146,60,.55);}
+  .fill.plan{background:rgba(34,211,238,.55);}
+  .todayMark{outline:2px solid rgba(255,0,0,.7);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>一級建築士 学科ガント（2026/01/05〜2026/07/31）</h1>
+  <div class="row muted" id="subhead"></div>
+
+  <div class="grid" style="margin-top:12px;">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div class="row">
+          <span class="pill" id="todayPill"></span>
+          <span class="pill" id="weekPill"></span>
+          <span class="pill" id="focusPill"></span>
+        </div>
+        <div class="row">
+          <button id="backupBtn">バックアップ</button>
+          <button id="restoreBtn">復元</button>
+          <button id="resetBtn">✅リセット</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;background:#0f1730;">
+        <div class="row" style="justify-content:space-between;align-items:flex-end;">
+          <div>
+            <b>今週の指令</b>
+            <div class="muted" style="margin-top:6px;">週末は「重点2科目」だけ必須。その他は通勤パックで維持（任意）。</div>
+          </div>
+          <div class="row">
+            <span class="muted">今週の持ち物：</span>
+            <select id="carryType">
+              <option value="A">A：携帯のみ</option>
+              <option value="B">B：薄冊1冊</option>
+              <option value="C">C：テキスト（例外）</option>
+            </select>
+            <input id="carryLabel" type="text" placeholder="例：法規③ 予習ワーク" style="min-width:240px;">
+            <button id="saveCarry">保存</button>
+          </div>
+        </div>
+
+        <div id="weekCommand" style="margin-top:10px;"></div>
+
+        <div class="card" style="margin-top:12px;background:#0b1220;">
+          <b>通勤パック（状態：週の維持）</b>
+          <div class="muted" style="margin-top:6px;">通勤は“タスク”ではなく“状態”。必要なものは上の「今週の持ち物」に集約。</div>
+          <div id="commutePack" style="margin-top:10px;" class="muted"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;background:#0f1730;">
+        <div class="row" style="justify-content:space-between;align-items:flex-end;">
+          <div>
+            <b>日次ガント（今から4週分）</b>
+            <div class="muted" style="margin-top:6px;">日単位で“やること”を表示（週末タスク中心）。</div>
+          </div>
+          <div class="row">
+            <span class="muted">表示：</span>
+            <select id="dailySpan">
+              <option value="28">28日（4週）</option>
+              <option value="14">14日（2週）</option>
+              <option value="7">7日（1週）</option>
+            </select>
+            <span class="muted">科目：</span>
+            <select id="filterSubj">
+              <option value="ALL">全て</option>
+              <option value="法規">法規</option>
+              <option value="構造">構造</option>
+              <option value="施工">施工</option>
+              <option value="環境">環境</option>
+              <option value="計画">計画</option>
+            </select>
+            <span class="muted">状態：</span>
+            <select id="filterStatus">
+              <option value="ALL">全て</option>
+              <option value="未着手">未着手</option>
+              <option value="作業中">作業中</option>
+              <option value="完了">完了</option>
+              <option value="遅延">遅延</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="muted" style="margin-top:10px;">日付・曜日（上段）／科目（左）／マスに色＝その日の対象。赤枠＝今日。</div>
+        <div id="dailyTimeline" style="margin-top:10px;"></div>
+
+        <div style="margin-top:10px;overflow:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px;">日付</th>
+                <th style="width:52px;">✅</th>
+                <th style="width:90px;">科目</th>
+                <th>内容</th>
+              </tr>
+            </thead>
+            <tbody id="dailyBody"></tbody>
+          </table>
+        </div>
+
+        <details style="margin-top:12px;">
+          <summary class="muted">週次ToDo（4週先まで）</summary>
+          <div id="weekList" style="margin-top:10px;"></div>
+        </details>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <b>進捗バー（科目別）</b>
+      <div class="muted" style="margin-top:6px;">「今日までに予定されている分」の完了率</div>
+      <div id="bars" style="margin-top:10px;"></div>
+
+      <div class="card" style="margin-top:12px;background:#0f1730;">
+        <b>遅延候補（自動）</b>
+        <div class="muted" style="margin-top:6px;">未完のまま予定終了日を過ぎたタスク</div>
+        <div id="lateList" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card" style="margin-top:12px;background:#0f1730;">
+        <b>計画：作品暗記（固定ルール）</b>
+        <div class="muted" style="margin-top:6px;">通勤で「毎日1作品」：建築家／作品名／特徴1行</div>
+        <div class="muted">週末で不足分を回収（週5件が最低ライン）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {"projectStart": "2026-01-05", "projectEnd": "2026-07-31", "weeks": [{"week": 1, "start": "2026-01-05", "end": "2026-01-11"}, {"week": 2, "start": "2026-01-12", "end": "2026-01-18"}, {"week": 3, "start": "2026-01-19", "end": "2026-01-25"}, {"week": 4, "start": "2026-01-26", "end": "2026-02-01"}, {"week": 5, "start": "2026-02-02", "end": "2026-02-08"}, {"week": 6, "start": "2026-02-09", "end": "2026-02-15"}, {"week": 7, "start": "2026-02-16", "end": "2026-02-22"}, {"week": 8, "start": "2026-02-23", "end": "2026-03-01"}, {"week": 9, "start": "2026-03-02", "end": "2026-03-08"}, {"week": 10, "start": "2026-03-09", "end": "2026-03-15"}, {"week": 11, "start": "2026-03-16", "end": "2026-03-22"}, {"week": 12, "start": "2026-03-23", "end": "2026-03-29"}, {"week": 13, "start": "2026-03-30", "end": "2026-04-05"}, {"week": 14, "start": "2026-04-06", "end": "2026-04-12"}, {"week": 15, "start": "2026-04-13", "end": "2026-04-19"}, {"week": 16, "start": "2026-04-20", "end": "2026-04-26"}, {"week": 17, "start": "2026-04-27", "end": "2026-05-03"}, {"week": 18, "start": "2026-05-04", "end": "2026-05-10"}, {"week": 19, "start": "2026-05-11", "end": "2026-05-17"}, {"week": 20, "start": "2026-05-18", "end": "2026-05-24"}, {"week": 21, "start": "2026-05-25", "end": "2026-05-31"}, {"week": 22, "start": "2026-06-01", "end": "2026-06-07"}, {"week": 23, "start": "2026-06-08", "end": "2026-06-14"}, {"week": 24, "start": "2026-06-15", "end": "2026-06-21"}, {"week": 25, "start": "2026-06-22", "end": "2026-06-28"}, {"week": 26, "start": "2026-06-29", "end": "2026-07-05"}, {"week": 27, "start": "2026-07-06", "end": "2026-07-12"}, {"week": 28, "start": "2026-07-13", "end": "2026-07-19"}, {"week": 29, "start": "2026-07-20", "end": "2026-07-26"}, {"week": 30, "start": "2026-07-27", "end": "2026-07-31"}], "subjects": ["法規", "構造", "施工", "環境", "計画"], "tasks": [{"id": "W1_法規", "week": 1, "subj": "法規", "type": "weekend", "text": "法規-③（集団規定）予習→演習40分（誤答TOP3）", "start": "2026-01-10", "end": "2026-01-11"}, {"id": "W1_構造", "week": 1, "subj": "構造", "type": "weekend", "text": "構造-③（不静定/振動）演習40分（誤答TOP2）", "start": "2026-01-10", "end": "2026-01-11"}, {"id": "W1_施工", "week": 1, "subj": "施工", "type": "weekend", "text": "施工-②（地盤/仮設/土工/山留め/基礎）整理", "start": "2026-01-10", "end": "2026-01-11"}, {"id": "W1_環境", "week": 1, "subj": "環境", "type": "weekend", "text": "環境・設備-①（光/日射/色彩）ミニ問", "start": "2026-01-10", "end": "2026-01-11"}, {"id": "W1_計画", "week": 1, "subj": "計画", "type": "weekend", "text": "計画-①（施設計画）＋作品カード5件", "start": "2026-01-10", "end": "2026-01-11"}, {"id": "W2_法規", "week": 2, "subj": "法規", "type": "weekend", "text": "法規-②（防火）予習→演習40分（誤答TOP3）", "start": "2026-01-17", "end": "2026-01-18"}, {"id": "W2_構造", "week": 2, "subj": "構造", "type": "weekend", "text": "構造-②（トラス/変形/座屈）演習40分（誤答TOP2）", "start": "2026-01-17", "end": "2026-01-18"}, {"id": "W2_施工", "week": 2, "subj": "施工", "type": "weekend", "text": "施工-③（鉄筋/型枠/コンクリ）演習40分", "start": "2026-01-17", "end": "2026-01-18"}, {"id": "W2_環境", "week": 2, "subj": "環境", "type": "weekend", "text": "環境・設備-②（換気/熱結露）ミニ問", "start": "2026-01-17", "end": "2026-01-18"}, {"id": "W2_計画", "week": 2, "subj": "計画", "type": "weekend", "text": "計画-②（医療/高齢/商業）＋作品カード5件", "start": "2026-01-17", "end": "2026-01-18"}, {"id": "W3_法規", "week": 3, "subj": "法規", "type": "weekend", "text": "法規-④（避難）予習→演習40分（誤答TOP3）", "start": "2026-01-24", "end": "2026-01-25"}, {"id": "W3_構造", "week": 3, "subj": "構造", "type": "weekend", "text": "構造-⑤（荷重・外力/構造設計Ds除く）予習→小問", "start": "2026-01-24", "end": "2026-01-25"}, {"id": "W3_施工", "week": 3, "subj": "施工", "type": "weekend", "text": "施工-④（PCa/S/木/防水）予習→小問", "start": "2026-01-24", "end": "2026-01-25"}, {"id": "W3_環境", "week": 3, "subj": "環境", "type": "weekend", "text": "環境・設備-④（音/衛生）ミニ問", "start": "2026-01-24", "end": "2026-01-25"}, {"id": "W3_計画", "week": 3, "subj": "計画", "type": "weekend", "text": "計画-③（都市/生産）＋作品カード5件", "start": "2026-01-24", "end": "2026-01-25"}, {"id": "W4_法規", "week": 4, "subj": "法規", "type": "weekend", "text": "法規-①（定義/手続）薄く→小問（20分）", "start": "2026-01-31", "end": "2026-02-01"}, {"id": "W4_構造", "week": 4, "subj": "構造", "type": "weekend", "text": "構造-⑥（木質/鉄骨/免震制振）予習→小問", "start": "2026-01-31", "end": "2026-02-01"}, {"id": "W4_施工", "week": 4, "subj": "施工", "type": "weekend", "text": "施工-⑤（仕上/設備/改修）予習→小問", "start": "2026-01-31", "end": "2026-02-01"}, {"id": "W4_環境", "week": 4, "subj": "環境", "type": "weekend", "text": "環境・設備-③（空調/省エネ1）ミニ問", "start": "2026-01-31", "end": "2026-02-01"}, {"id": "W4_計画", "week": 4, "subj": "計画", "type": "weekend", "text": "建築史・作品カード20（通勤含む）", "start": "2026-01-31", "end": "2026-02-01"}, {"id": "W5_法規", "week": 5, "subj": "法規", "type": "weekend", "text": "法規-③（回転）演習40分＋解き直し10分", "start": "2026-02-07", "end": "2026-02-08"}, {"id": "W5_構造", "week": 5, "subj": "構造", "type": "weekend", "text": "構造-⑦（RC/合成/PC/耐震改修）予習→小問", "start": "2026-02-07", "end": "2026-02-08"}, {"id": "W5_施工", "week": 5, "subj": "施工", "type": "weekend", "text": "施工-①（契約/管理/申請）薄く＋小問", "start": "2026-02-07", "end": "2026-02-08"}, {"id": "W5_環境", "week": 5, "subj": "環境", "type": "weekend", "text": "環境・設備-⑤（電気/防災/省エネ2）ミニ問", "start": "2026-02-07", "end": "2026-02-08"}, {"id": "W5_計画", "week": 5, "subj": "計画", "type": "weekend", "text": "図版テスト40分①", "start": "2026-02-07", "end": "2026-02-08"}, {"id": "W6_法規", "week": 6, "subj": "法規", "type": "weekend", "text": "法規-②（回転）演習40分＋解き直し10分", "start": "2026-02-14", "end": "2026-02-15"}, {"id": "W6_構造", "week": 6, "subj": "構造", "type": "weekend", "text": "構造-④（塑性解析/鋼材）薄く＋例題", "start": "2026-02-14", "end": "2026-02-15"}, {"id": "W6_施工", "week": 6, "subj": "施工", "type": "weekend", "text": "弱点工程1つ（排水/山留め等）潰す", "start": "2026-02-14", "end": "2026-02-15"}, {"id": "W6_環境", "week": 6, "subj": "環境", "type": "weekend", "text": "計算演習40分（熱）＋解き直し", "start": "2026-02-14", "end": "2026-02-15"}, {"id": "W6_計画", "week": 6, "subj": "計画", "type": "weekend", "text": "図版テスト40分②", "start": "2026-02-14", "end": "2026-02-15"}, {"id": "W7_法規", "week": 7, "subj": "法規", "type": "weekend", "text": "法規-⑤（関係法令）薄く＋小問20分", "start": "2026-02-21", "end": "2026-02-22"}, {"id": "W7_構造", "week": 7, "subj": "構造", "type": "weekend", "text": "構造-⑧（基礎/Ds/構造計画）入口＋例題", "start": "2026-02-21", "end": "2026-02-22"}, {"id": "W7_施工", "week": 7, "subj": "施工", "type": "weekend", "text": "章別演習40分（躯体）＋解き直し", "start": "2026-02-21", "end": "2026-02-22"}, {"id": "W7_環境", "week": 7, "subj": "環境", "type": "weekend", "text": "計算演習40分（光）＋解き直し", "start": "2026-02-21", "end": "2026-02-22"}, {"id": "W7_計画", "week": 7, "subj": "計画", "type": "weekend", "text": "都市計画 小問セット", "start": "2026-02-21", "end": "2026-02-22"}, {"id": "W8_法規", "week": 8, "subj": "法規", "type": "weekend", "text": "弱点TOP3（法規）条文⇄問題の往復", "start": "2026-02-28", "end": "2026-03-01"}, {"id": "W8_構造", "week": 8, "subj": "構造", "type": "weekend", "text": "弱点TOP3（構造）手順で潰す", "start": "2026-02-28", "end": "2026-03-01"}, {"id": "W8_施工", "week": 8, "subj": "施工", "type": "weekend", "text": "章別演習40分（防水・仕上）＋解き直し", "start": "2026-02-28", "end": "2026-03-01"}, {"id": "W8_環境", "week": 8, "subj": "環境", "type": "weekend", "text": "計算演習40分（換気/空調）＋解き直し", "start": "2026-02-28", "end": "2026-03-01"}, {"id": "W8_計画", "week": 8, "subj": "計画", "type": "weekend", "text": "弱点TOP3（計画）潰す", "start": "2026-02-28", "end": "2026-03-01"}, {"id": "W9_法規", "week": 9, "subj": "法規", "type": "weekend", "text": "法規-③（2周目：高さ/日影の条件分岐固め）", "start": "2026-03-07", "end": "2026-03-08"}, {"id": "W9_構造", "week": 9, "subj": "構造", "type": "weekend", "text": "総合演習40分①（力学混合）", "start": "2026-03-07", "end": "2026-03-08"}, {"id": "W9_施工", "week": 9, "subj": "施工", "type": "weekend", "text": "過去問回転①（施工）40分", "start": "2026-03-07", "end": "2026-03-08"}, {"id": "W9_環境", "week": 9, "subj": "環境", "type": "weekend", "text": "系統図カード（空調/衛生/電気）", "start": "2026-03-07", "end": "2026-03-08"}, {"id": "W9_計画", "week": 9, "subj": "計画", "type": "weekend", "text": "過去問回転①（計画）40分", "start": "2026-03-07", "end": "2026-03-08"}, {"id": "W10_法規", "week": 10, "subj": "法規", "type": "weekend", "text": "法規-②（2周目：防火区画/内装を固める）", "start": "2026-03-14", "end": "2026-03-15"}, {"id": "W10_構造", "week": 10, "subj": "構造", "type": "weekend", "text": "総合演習40分②（力学混合）", "start": "2026-03-14", "end": "2026-03-15"}, {"id": "W10_施工", "week": 10, "subj": "施工", "type": "weekend", "text": "過去問回転②（施工）40分", "start": "2026-03-14", "end": "2026-03-15"}, {"id": "W10_環境", "week": 10, "subj": "環境", "type": "weekend", "text": "過去問回転①（環境）40分", "start": "2026-03-14", "end": "2026-03-15"}, {"id": "W10_計画", "week": 10, "subj": "計画", "type": "weekend", "text": "過去問回転②（計画）40分", "start": "2026-03-14", "end": "2026-03-15"}, {"id": "W11_法規", "week": 11, "subj": "法規", "type": "weekend", "text": "法規-④（2周目：避難＋検証の混乱潰し）", "start": "2026-03-21", "end": "2026-03-22"}, {"id": "W11_構造", "week": 11, "subj": "構造", "type": "weekend", "text": "計算スピード：典型10問（短縮）", "start": "2026-03-21", "end": "2026-03-22"}, {"id": "W11_施工", "week": 11, "subj": "施工", "type": "weekend", "text": "過去問回転③（施工）40分", "start": "2026-03-21", "end": "2026-03-22"}, {"id": "W11_環境", "week": 11, "subj": "環境", "type": "weekend", "text": "過去問回転②（環境）40分", "start": "2026-03-21", "end": "2026-03-22"}, {"id": "W11_計画", "week": 11, "subj": "計画", "type": "weekend", "text": "過去問回転③（計画）40分", "start": "2026-03-21", "end": "2026-03-22"}, {"id": "W12_法規", "week": 12, "subj": "法規", "type": "weekend", "text": "混合20問（ランダム）40分＋誤答TOP5", "start": "2026-03-28", "end": "2026-03-29"}, {"id": "W12_構造", "week": 12, "subj": "構造", "type": "weekend", "text": "過去問回転①（構造）40分", "start": "2026-03-28", "end": "2026-03-29"}, {"id": "W12_施工", "week": 12, "subj": "施工", "type": "weekend", "text": "品質・安全管理 小問セット", "start": "2026-03-28", "end": "2026-03-29"}, {"id": "W12_環境", "week": 12, "subj": "環境", "type": "weekend", "text": "過去問回転③（環境）40分", "start": "2026-03-28", "end": "2026-03-29"}, {"id": "W12_計画", "week": 12, "subj": "計画", "type": "weekend", "text": "模試形式①（計画）＋復習", "start": "2026-03-28", "end": "2026-03-29"}, {"id": "W13_法規", "week": 13, "subj": "法規", "type": "weekend", "text": "法規-⑤（関係法令）暗記カード化", "start": "2026-04-04", "end": "2026-04-05"}, {"id": "W13_構造", "week": 13, "subj": "構造", "type": "weekend", "text": "過去問回転②（構造）40分", "start": "2026-04-04", "end": "2026-04-05"}, {"id": "W13_施工", "week": 13, "subj": "施工", "type": "weekend", "text": "工程・仮設計画 小問セット", "start": "2026-04-04", "end": "2026-04-05"}, {"id": "W13_環境", "week": 13, "subj": "環境", "type": "weekend", "text": "模試形式①（環境）＋復習", "start": "2026-04-04", "end": "2026-04-05"}, {"id": "W13_計画", "week": 13, "subj": "計画", "type": "weekend", "text": "模試復習（誤答TOP10）", "start": "2026-04-04", "end": "2026-04-05"}, {"id": "W14_法規", "week": 14, "subj": "法規", "type": "weekend", "text": "法規-①（手続き・建築士法）確認＋小問", "start": "2026-04-11", "end": "2026-04-12"}, {"id": "W14_構造", "week": 14, "subj": "構造", "type": "weekend", "text": "過去問回転③（構造）40分", "start": "2026-04-11", "end": "2026-04-12"}, {"id": "W14_施工", "week": 14, "subj": "施工", "type": "weekend", "text": "揚重・施工計画 小問セット", "start": "2026-04-11", "end": "2026-04-12"}, {"id": "W14_環境", "week": 14, "subj": "環境", "type": "weekend", "text": "模試復習（誤答TOP10）", "start": "2026-04-11", "end": "2026-04-12"}, {"id": "W14_計画", "week": 14, "subj": "計画", "type": "weekend", "text": "模試形式②（計画）＋復習", "start": "2026-04-11", "end": "2026-04-12"}, {"id": "W15_法規", "week": 15, "subj": "法規", "type": "weekend", "text": "総合演習40分①（混合）＋誤答TOP3", "start": "2026-04-18", "end": "2026-04-19"}, {"id": "W15_構造", "week": 15, "subj": "構造", "type": "weekend", "text": "RC/S/木 小問セット①", "start": "2026-04-18", "end": "2026-04-19"}, {"id": "W15_施工", "week": 15, "subj": "施工", "type": "weekend", "text": "模試形式①（施工）＋復習", "start": "2026-04-18", "end": "2026-04-19"}, {"id": "W15_環境", "week": 15, "subj": "環境", "type": "weekend", "text": "模試形式②（環境）＋復習", "start": "2026-04-18", "end": "2026-04-19"}, {"id": "W15_計画", "week": 15, "subj": "計画", "type": "weekend", "text": "直前作品回転①（図版10）", "start": "2026-04-18", "end": "2026-04-19"}, {"id": "W16_法規", "week": 16, "subj": "法規", "type": "weekend", "text": "総合演習40分②（混合）＋誤答TOP3", "start": "2026-04-25", "end": "2026-04-26"}, {"id": "W16_構造", "week": 16, "subj": "構造", "type": "weekend", "text": "RC/S/木 小問セット②", "start": "2026-04-25", "end": "2026-04-26"}, {"id": "W16_施工", "week": 16, "subj": "施工", "type": "weekend", "text": "模試復習（誤答TOP10）", "start": "2026-04-25", "end": "2026-04-26"}, {"id": "W16_環境", "week": 16, "subj": "環境", "type": "weekend", "text": "直前弱点1テーマ（重点補強）", "start": "2026-04-25", "end": "2026-04-26"}, {"id": "W16_計画", "week": 16, "subj": "計画", "type": "weekend", "text": "直前作品回転②（図版10）", "start": "2026-04-25", "end": "2026-04-26"}, {"id": "W17_法規", "week": 17, "subj": "法規", "type": "weekend", "text": "斜線・日影：数値固定＋小問40分", "start": "2026-05-02", "end": "2026-05-03"}, {"id": "W17_構造", "week": 17, "subj": "構造", "type": "weekend", "text": "荷重・地震 小問", "start": "2026-05-02", "end": "2026-05-03"}, {"id": "W17_施工", "week": 17, "subj": "施工", "type": "weekend", "text": "模試形式②（施工）＋復習", "start": "2026-05-02", "end": "2026-05-03"}, {"id": "W17_環境", "week": 17, "subj": "環境", "type": "weekend", "text": "直前回転①（環境）", "start": "2026-05-02", "end": "2026-05-03"}, {"id": "W17_計画", "week": 17, "subj": "計画", "type": "weekend", "text": "直前作品回転③（図版10）", "start": "2026-05-02", "end": "2026-05-03"}, {"id": "W18_法規", "week": 18, "subj": "法規", "type": "weekend", "text": "条文戻り（誤答TOP3×3テーマ）", "start": "2026-05-09", "end": "2026-05-10"}, {"id": "W18_構造", "week": 18, "subj": "構造", "type": "weekend", "text": "風・基礎 小問", "start": "2026-05-09", "end": "2026-05-10"}, {"id": "W18_施工", "week": 18, "subj": "施工", "type": "weekend", "text": "直前弱点1テーマ（重点補強）", "start": "2026-05-09", "end": "2026-05-10"}, {"id": "W18_環境", "week": 18, "subj": "環境", "type": "weekend", "text": "直前回転②（環境）", "start": "2026-05-09", "end": "2026-05-10"}, {"id": "W18_計画", "week": 18, "subj": "計画", "type": "weekend", "text": "直前作品回転④（図版10）", "start": "2026-05-09", "end": "2026-05-10"}, {"id": "W19_法規", "week": 19, "subj": "法規", "type": "weekend", "text": "過去問回転①（法規）40分", "start": "2026-05-16", "end": "2026-05-17"}, {"id": "W19_構造", "week": 19, "subj": "構造", "type": "weekend", "text": "模試形式①（構造）＋復習", "start": "2026-05-16", "end": "2026-05-17"}, {"id": "W19_施工", "week": 19, "subj": "施工", "type": "weekend", "text": "直前回転①（施工）", "start": "2026-05-16", "end": "2026-05-17"}, {"id": "W19_環境", "week": 19, "subj": "環境", "type": "weekend", "text": "直前回転③（環境）", "start": "2026-05-16", "end": "2026-05-17"}, {"id": "W19_計画", "week": 19, "subj": "計画", "type": "weekend", "text": "直前作品回転⑤（図版10）", "start": "2026-05-16", "end": "2026-05-17"}, {"id": "W20_法規", "week": 20, "subj": "法規", "type": "weekend", "text": "過去問回転②（法規）40分", "start": "2026-05-23", "end": "2026-05-24"}, {"id": "W20_構造", "week": 20, "subj": "構造", "type": "weekend", "text": "模試復習（誤答TOP10）", "start": "2026-05-23", "end": "2026-05-24"}, {"id": "W20_施工", "week": 20, "subj": "施工", "type": "weekend", "text": "直前回転②（施工）", "start": "2026-05-23", "end": "2026-05-24"}, {"id": "W20_環境", "week": 20, "subj": "環境", "type": "weekend", "text": "直前回転④（環境）", "start": "2026-05-23", "end": "2026-05-24"}, {"id": "W20_計画", "week": 20, "subj": "計画", "type": "weekend", "text": "直前：都市計画回転（用語）", "start": "2026-05-23", "end": "2026-05-24"}, {"id": "W21_法規", "week": 21, "subj": "法規", "type": "weekend", "text": "過去問回転③（法規）40分", "start": "2026-05-30", "end": "2026-05-31"}, {"id": "W21_構造", "week": 21, "subj": "構造", "type": "weekend", "text": "模試形式②（構造）＋復習", "start": "2026-05-30", "end": "2026-05-31"}, {"id": "W21_施工", "week": 21, "subj": "施工", "type": "weekend", "text": "直前回転③（施工）", "start": "2026-05-30", "end": "2026-05-31"}, {"id": "W21_環境", "week": 21, "subj": "環境", "type": "weekend", "text": "直前回転⑤（環境）", "start": "2026-05-30", "end": "2026-05-31"}, {"id": "W21_計画", "week": 21, "subj": "計画", "type": "weekend", "text": "直前：住宅計画回転（寸法/動線）", "start": "2026-05-30", "end": "2026-05-31"}, {"id": "W22_法規", "week": 22, "subj": "法規", "type": "weekend", "text": "模試形式①（法規）＋復習", "start": "2026-06-06", "end": "2026-06-07"}, {"id": "W22_構造", "week": 22, "subj": "構造", "type": "weekend", "text": "直前弱点1テーマ（重点補強）", "start": "2026-06-06", "end": "2026-06-07"}, {"id": "W22_施工", "week": 22, "subj": "施工", "type": "weekend", "text": "直前回転④（施工）", "start": "2026-06-06", "end": "2026-06-07"}, {"id": "W22_環境", "week": 22, "subj": "環境", "type": "weekend", "text": "総合演習（時間短縮）40分", "start": "2026-06-06", "end": "2026-06-07"}, {"id": "W22_計画", "week": 22, "subj": "計画", "type": "weekend", "text": "総合演習（時間短縮）40分", "start": "2026-06-06", "end": "2026-06-07"}, {"id": "W23_法規", "week": 23, "subj": "法規", "type": "weekend", "text": "模試復習（誤答TOP10を原因分類）", "start": "2026-06-13", "end": "2026-06-14"}, {"id": "W23_構造", "week": 23, "subj": "構造", "type": "weekend", "text": "直前回転①（弱点）", "start": "2026-06-13", "end": "2026-06-14"}, {"id": "W23_施工", "week": 23, "subj": "施工", "type": "weekend", "text": "直前回転⑤（施工）", "start": "2026-06-13", "end": "2026-06-14"}, {"id": "W23_環境", "week": 23, "subj": "環境", "type": "weekend", "text": "単位・公式カード", "start": "2026-06-13", "end": "2026-06-14"}, {"id": "W23_計画", "week": 23, "subj": "計画", "type": "weekend", "text": "直前回転⑥（作品）", "start": "2026-06-13", "end": "2026-06-14"}, {"id": "W24_法規", "week": 24, "subj": "法規", "type": "weekend", "text": "模試形式②（法規）＋復習", "start": "2026-06-20", "end": "2026-06-21"}, {"id": "W24_構造", "week": 24, "subj": "構造", "type": "weekend", "text": "直前回転②（弱点）", "start": "2026-06-20", "end": "2026-06-21"}, {"id": "W24_施工", "week": 24, "subj": "施工", "type": "weekend", "text": "総合演習（時間短縮）40分", "start": "2026-06-20", "end": "2026-06-21"}, {"id": "W24_環境", "week": 24, "subj": "環境", "type": "weekend", "text": "系統図 最終確認", "start": "2026-06-20", "end": "2026-06-21"}, {"id": "W24_計画", "week": 24, "subj": "計画", "type": "weekend", "text": "直前回転⑦（作品）", "start": "2026-06-20", "end": "2026-06-21"}, {"id": "W25_法規", "week": 25, "subj": "法規", "type": "weekend", "text": "直前数値カード（高さ/防火/避難）", "start": "2026-06-27", "end": "2026-06-28"}, {"id": "W25_構造", "week": 25, "subj": "構造", "type": "weekend", "text": "直前回転③（弱点）", "start": "2026-06-27", "end": "2026-06-28"}, {"id": "W25_施工", "week": 25, "subj": "施工", "type": "weekend", "text": "用語カード（仕上）", "start": "2026-06-27", "end": "2026-06-28"}, {"id": "W25_環境", "week": 25, "subj": "環境", "type": "weekend", "text": "直前回転⑥（環境）", "start": "2026-06-27", "end": "2026-06-28"}, {"id": "W25_計画", "week": 25, "subj": "計画", "type": "weekend", "text": "直前回転⑧（作品）", "start": "2026-06-27", "end": "2026-06-28"}, {"id": "W26_法規", "week": 26, "subj": "法規", "type": "weekend", "text": "総合演習（時間短縮）40分", "start": "2026-07-04", "end": "2026-07-05"}, {"id": "W26_構造", "week": 26, "subj": "構造", "type": "weekend", "text": "公式/型の最短化（1枚化）", "start": "2026-07-04", "end": "2026-07-05"}, {"id": "W26_施工", "week": 26, "subj": "施工", "type": "weekend", "text": "用語カード（躯体）", "start": "2026-07-04", "end": "2026-07-05"}, {"id": "W26_環境", "week": 26, "subj": "環境", "type": "weekend", "text": "直前回転⑦（環境）", "start": "2026-07-04", "end": "2026-07-05"}, {"id": "W26_計画", "week": 26, "subj": "計画", "type": "weekend", "text": "直前回転⑨（作品）", "start": "2026-07-04", "end": "2026-07-05"}, {"id": "W27_法規", "week": 27, "subj": "法規", "type": "weekend", "text": "直前回転①（弱点1テーマ）", "start": "2026-07-11", "end": "2026-07-12"}, {"id": "W27_構造", "week": 27, "subj": "構造", "type": "weekend", "text": "総合演習（時間短縮）40分", "start": "2026-07-11", "end": "2026-07-12"}, {"id": "W27_施工", "week": 27, "subj": "施工", "type": "weekend", "text": "用語カード（仮設）", "start": "2026-07-11", "end": "2026-07-12"}, {"id": "W27_環境", "week": 27, "subj": "環境", "type": "weekend", "text": "直前回転⑧（環境）", "start": "2026-07-11", "end": "2026-07-12"}, {"id": "W27_計画", "week": 27, "subj": "計画", "type": "weekend", "text": "直前回転⑩（作品）", "start": "2026-07-11", "end": "2026-07-12"}, {"id": "W28_法規", "week": 28, "subj": "法規", "type": "weekend", "text": "直前回転②（弱点1テーマ）", "start": "2026-07-18", "end": "2026-07-19"}, {"id": "W28_構造", "week": 28, "subj": "構造", "type": "weekend", "text": "直前回転④（弱点）", "start": "2026-07-18", "end": "2026-07-19"}, {"id": "W28_施工", "week": 28, "subj": "施工", "type": "weekend", "text": "直前回転⑥（施工）", "start": "2026-07-18", "end": "2026-07-19"}, {"id": "W28_環境", "week": 28, "subj": "環境", "type": "weekend", "text": "直前回転⑨（環境）", "start": "2026-07-18", "end": "2026-07-19"}, {"id": "W28_計画", "week": 28, "subj": "計画", "type": "weekend", "text": "直前回転⑪（作品）", "start": "2026-07-18", "end": "2026-07-19"}, {"id": "W29_法規", "week": 29, "subj": "法規", "type": "weekend", "text": "直前回転③（弱点1テーマ）", "start": "2026-07-25", "end": "2026-07-26"}, {"id": "W29_構造", "week": 29, "subj": "構造", "type": "weekend", "text": "直前回転⑤（弱点）", "start": "2026-07-25", "end": "2026-07-26"}, {"id": "W29_施工", "week": 29, "subj": "施工", "type": "weekend", "text": "直前回転⑦（施工）", "start": "2026-07-25", "end": "2026-07-26"}, {"id": "W29_環境", "week": 29, "subj": "環境", "type": "weekend", "text": "直前回転⑩（環境）", "start": "2026-07-25", "end": "2026-07-26"}, {"id": "W29_計画", "week": 29, "subj": "計画", "type": "weekend", "text": "直前回転⑫（作品）", "start": "2026-07-25", "end": "2026-07-26"}, {"id": "W30_法規", "week": 30, "subj": "法規", "type": "weekend", "text": "直前総復習（頻出数値・定義）", "start": "2026-07-31", "end": "2026-07-31"}, {"id": "W30_構造", "week": 30, "subj": "構造", "type": "weekend", "text": "直前総復習（公式/型）", "start": "2026-07-31", "end": "2026-07-31"}, {"id": "W30_施工", "week": 30, "subj": "施工", "type": "weekend", "text": "直前総復習（工程・用語）", "start": "2026-07-31", "end": "2026-07-31"}, {"id": "W30_環境", "week": 30, "subj": "環境", "type": "weekend", "text": "直前総復習（公式・単位・系統）", "start": "2026-07-31", "end": "2026-07-31"}, {"id": "W30_計画", "week": 30, "subj": "計画", "type": "weekend", "text": "直前総復習（作品・用語）", "start": "2026-07-31", "end": "2026-07-31"}], "focusPairs": [{"week": 1, "a": "法規", "b": "構造"}, {"week": 2, "a": "法規", "b": "施工"}, {"week": 3, "a": "法規", "b": "環境"}, {"week": 4, "a": "法規", "b": "構造"}, {"week": 5, "a": "法規", "b": "施工"}, {"week": 6, "a": "法規", "b": "環境"}, {"week": 7, "a": "法規", "b": "計画"}, {"week": 8, "a": "全科目", "b": "弱点/調整"}, {"week": 9, "a": "法規", "b": "構造"}, {"week": 10, "a": "法規", "b": "施工"}, {"week": 11, "a": "法規", "b": "環境"}, {"week": 12, "a": "法規", "b": "計画"}, {"week": 13, "a": "法規", "b": "構造"}, {"week": 14, "a": "法規", "b": "施工"}, {"week": 15, "a": "法規", "b": "環境"}, {"week": 16, "a": "法規", "b": "計画"}, {"week": 17, "a": "法規", "b": "構造"}, {"week": 18, "a": "法規", "b": "施工"}, {"week": 19, "a": "法規", "b": "環境"}, {"week": 20, "a": "法規", "b": "計画"}, {"week": 21, "a": "法規", "b": "構造"}, {"week": 22, "a": "法規", "b": "施工"}, {"week": 23, "a": "法規", "b": "環境"}, {"week": 24, "a": "法規", "b": "計画"}, {"week": 25, "a": "全科目", "b": "過去問/模試"}, {"week": 26, "a": "全科目", "b": "過去問/模試"}, {"week": 27, "a": "全科目", "b": "直前回転"}, {"week": 28, "a": "全科目", "b": "直前回転"}, {"week": 29, "a": "全科目", "b": "直前回転"}, {"week": 30, "a": "全科目", "b": "直前総復習"}]};
+
+const TAG_CLASS = { "法規":"law", "構造":"str", "施工":"con", "環境":"env", "計画":"plan" };
+const SUBJECTS = ["法規","構造","施工","環境","計画"];
+const TASKS = DATA.tasks; // commute は除去済み
+
+const LS_DONE = "ikkkyu_done_map_2026_v4";
+const LS_CARRY = "ikkkyu_carry_2026_v4";
+
+function loadJson(key){ try{ return JSON.parse(localStorage.getItem(key)||"{}"); }catch{ return {}; } }
+function saveJson(key, obj){ localStorage.setItem(key, JSON.stringify(obj)); }
+
+function todayLocal(){
+  const n = new Date();
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate());
+}
+const TODAY = todayLocal();
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function fmt(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function mmdd(d){ return `${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function dowJP(d){ return ["日","月","火","水","木","金","土"][d.getDay()]; }
+
+function tag(subj){
+  const cls = TAG_CLASS[subj] || "plan";
+  return `<span class="tag ${cls}">${subj}</span>`;
+}
+
+function statusOf(task, done){
+  if (done[task.id]) return "完了";
+  const s = new Date(task.start);
+  const e = new Date(task.end);
+  if (e < TODAY) return "遅延";
+  if (s <= TODAY && TODAY <= e) return "作業中";
+  return "未着手";
+}
+
+function pill(st){
+  if (st==="完了") return `<span class="pill ok">完了</span>`;
+  if (st==="遅延") return `<span class="pill bad">遅延</span>`;
+  if (st==="作業中") return `<span class="pill warn">作業中</span>`;
+  return `<span class="pill">未着手</span>`;
+}
+
+function weekNoOf(date){
+  const ps = new Date(DATA.projectStart);
+  const diff = Math.floor((date - ps) / 86400000);
+  const w = Math.floor(diff/7) + 1;
+  return Math.min(Math.max(w,1), DATA.weeks.length);
+}
+
+function commutePackHTML(){
+  return `
+    <div>月：バランス学習 1〜2問（任意科目）</div>
+    <div>火：計画 作品1件（建築家／作品名／特徴1行）</div>
+    <div>水：週末でやる回の「見出しだけ確認」</div>
+    <div>木：バランス学習 1〜2問（任意科目）</div>
+    <div>金：週末準備（冊子をバッグに入れる／開くページをメモ）</div>
+  `;
+}
+
+function renderWeekCommand(done, w){
+  const focus = DATA.focusPairs[w-1];
+  const wkWeekend = TASKS.filter(t => t.week===w && t.type==="weekend");
+
+  let html = "";
+  if (!focus || focus.a==="全科目"){
+    html += `<div class="neonBox"><span class="neonTag">今週の重点</span><span class="mono">全科目：${focus ? focus.b : "—"}</span></div>`;
+    html += `<div style="margin-top:10px;">` + wkWeekend.map(t => `<div>${tag(t.subj)} ${t.text} ${pill(statusOf(t, done))}</div>`).join("") + `</div>`;
+  } else {
+    const tA = wkWeekend.find(t=>t.subj===focus.a);
+    const tB = wkWeekend.find(t=>t.subj===focus.b);
+    const other = wkWeekend.filter(t=>t.subj!==focus.a && t.subj!==focus.b);
+
+    html += `<div class="neonBox">
+      <div><span class="neonTag">重点①</span>${tag(tA.subj)} <b>${tA.text}</b> ${pill(statusOf(tA, done))}</div>
+      <div style="margin-top:8px;"><span class="neonTag">重点②</span>${tag(tB.subj)} <b>${tB.text}</b> ${pill(statusOf(tB, done))}</div>
+      <div class="muted" style="margin-top:10px;">週末はここだけ必須（各40分＋誤答整理）。</div>
+    </div>`;
+
+    html += `<div style="margin-top:10px;">
+      <div class="muted"><b>他教科（通勤で維持：任意）</b></div>
+      ${other.map(t => `<div class="muted" style="margin-top:6px;">${tag(t.subj)} ${t.text}</div>`).join("")}
+    </div>`;
+  }
+  document.getElementById("weekCommand").innerHTML = html;
+}
+
+function renderDaily(done, fSubj, fStat){
+  const span = parseInt(document.getElementById("dailySpan").value, 10);
+  const tbody = document.getElementById("dailyBody");
+  tbody.innerHTML = "";
+
+  const tasks = TASKS.map(t => ({t, st: statusOf(t, done)}));
+
+  for (let i=0; i<span; i++) {
+    const d = new Date(TODAY.getTime() + i*86400000);
+    const ds = fmt(d);
+    const dow = dowJP(d);
+
+    const dayItems = tasks.filter(x => {
+      const s = new Date(x.t.start);
+      const e = new Date(x.t.end);
+      return s <= d && d <= e;
+    })
+    .filter(x => fSubj==="ALL" ? true : x.t.subj===fSubj)
+    .filter(x => fStat==="ALL" ? true : x.st===fStat)
+    .sort((a,b)=> SUBJECTS.indexOf(a.t.subj) - SUBJECTS.indexOf(b.t.subj));
+
+    if (!dayItems.length) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="mono">${ds}（${dow}）</td>
+        <td></td>
+        <td class="muted">—</td>
+        <td class="muted">（該当なし）</td>
+      `;
+      tbody.appendChild(tr);
+      continue;
+    }
+
+    for (let j=0; j<dayItems.length; j++) {
+      const x = dayItems[j];
+      const checked = done[x.t.id] ? "checked" : "";
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="mono">${j===0 ? `${ds}（${dow}）` : ""}</td>
+        <td style="text-align:center;"><input type="checkbox" data-id="${x.t.id}" ${checked}></td>
+        <td>${tag(x.t.subj)}</td>
+        <td>${x.t.text}</td>
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  tbody.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", (e)=>{
+      const id = e.target.getAttribute("data-id");
+      const d = loadJson(LS_DONE);
+      d[id] = e.target.checked;
+      saveJson(LS_DONE, d);
+      render();
+    });
+  });
+
+  renderDailyTimeline(span, fSubj, fStat, done);
+}
+
+function renderDailyTimeline(span, fSubj, fStat, done){
+  const wrap = document.getElementById("dailyTimeline");
+  wrap.innerHTML = "";
+
+  // Header row
+  const head = document.createElement("div");
+  head.className = "tl-head";
+  head.innerHTML = `<div class="muted">日付</div><div class="tl-grid"></div>`;
+  const gridHead = head.querySelector(".tl-grid");
+  for (let i=0; i<span; i++) {
+    const d = new Date(TODAY.getTime() + i*86400000);
+    const c = document.createElement("div");
+    c.className = "cell";
+    if (i===0) c.classList.add("todayMark");
+    c.innerHTML = `<div class="lbl">${mmdd(d)}<br>${dowJP(d)}</div>`;
+    gridHead.appendChild(c);
+  }
+  wrap.appendChild(head);
+
+  for (const subj of SUBJECTS) {
+    if (fSubj!=="ALL" && subj!==fSubj) continue;
+
+    const row = document.createElement("div");
+    row.className = "tl-head";
+    const left = document.createElement("div");
+    left.innerHTML = tag(subj);
+    row.appendChild(left);
+
+    const grid = document.createElement("div");
+    grid.className = "tl-grid";
+
+    for (let i=0; i<span; i++) {
+      const d = new Date(TODAY.getTime() + i*86400000);
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      if (i===0) cell.classList.add("todayMark");
+
+      const items = TASKS
+        .filter(t => t.subj===subj)
+        .map(t => ({t, st: statusOf(t, done)}))
+        .filter(x => {
+          const s = new Date(x.t.start);
+          const e = new Date(x.t.end);
+          return s <= d && d <= e;
+        })
+        .filter(x => fStat==="ALL" ? true : x.st===fStat);
+
+      if (items.length) {
+        const fill = document.createElement("div");
+        fill.className = "fill " + (TAG_CLASS[subj] || "plan");
+        const allDone = items.every(x => done[x.t.id]);
+        fill.style.opacity = allDone ? "0.30" : "0.85";
+        cell.appendChild(fill);
+      }
+      grid.appendChild(cell);
+    }
+    row.appendChild(grid);
+    wrap.appendChild(row);
+  }
+}
+
+function renderBars(done){
+  const bars = document.getElementById("bars");
+  bars.innerHTML = "";
+  for (const subj of SUBJECTS){
+    const planned = TASKS.filter(t => t.subj===subj && new Date(t.end) <= TODAY);
+    const doneCount = planned.filter(t => done[t.id]).length;
+    const pct = planned.length ? Math.round(doneCount / planned.length * 100) : 0;
+    const line = document.createElement("div");
+    line.className = "barline";
+    line.innerHTML = `
+      <div>${tag(subj)}</div>
+      <div class="bar"><div style="width:${pct}%;"></div></div>
+      <div class="mono">${pct}%</div>
+    `;
+    bars.appendChild(line);
+  }
+}
+
+function renderLate(done){
+  const late = TASKS.filter(t => statusOf(t, done)==="遅延");
+  const lateEl = document.getElementById("lateList");
+  lateEl.innerHTML = late.length ? late.slice(0,40).map(t => `<div class="muted">${tag(t.subj)} W${t.week}：${t.text}</div>`).join("") : `<div class="muted">（なし）</div>`;
+}
+
+function renderWeekList(done, fSubj, fStat){
+  const w = weekNoOf(TODAY);
+  const list = document.getElementById("weekList");
+  list.innerHTML = "";
+  const from = w;
+  const to = Math.min(w+4, DATA.weeks.length);
+
+  for (let wk=from; wk<=to; wk++) {
+    const info = DATA.weeks[wk-1];
+    const ws = new Date(info.start), we = new Date(info.end);
+    const items = TASKS.filter(t=>t.week===wk)
+      .map(t=>({t, st: statusOf(t, done)}))
+      .filter(x => fSubj==="ALL" ? true : x.t.subj===fSubj)
+      .filter(x => fStat==="ALL" ? true : x.st===fStat);
+
+    const block = document.createElement("div");
+    block.className="card";
+    block.style.background="#0b1220";
+    block.style.borderRadius="12px";
+    block.style.padding="10px";
+    block.style.margin="0 0 10px 0";
+    block.innerHTML = `<div class="mono">W${wk}（${mmdd(ws)}〜${mmdd(we)}）</div>` +
+      items.map(x => `
+        <div style="margin-top:8px;display:flex;gap:10px;align-items:flex-start;">
+          <div style="margin-top:2px;"><input type="checkbox" data-id="${x.t.id}" ${done[x.t.id] ? "checked":""}></div>
+          <div style="flex:1;">
+            <div>${tag(x.t.subj)} ${x.t.text}</div>
+            <div class="muted" style="margin-top:4px;">${pill(x.st)} <span class="mono">${x.t.start.slice(5)}〜${x.t.end.slice(5)}</span></div>
+          </div>
+        </div>
+      `).join("");
+    list.appendChild(block);
+  }
+
+  list.querySelectorAll("input[type=checkbox]").forEach(cb => {
+    cb.addEventListener("change", (e)=>{
+      const id = e.target.getAttribute("data-id");
+      const d = loadJson(LS_DONE);
+      d[id] = e.target.checked;
+      saveJson(LS_DONE, d);
+      render();
+    });
+  });
+}
+
+function render(){
+  const done = loadJson(LS_DONE);
+  const carry = loadJson(LS_CARRY);
+
+  const w = weekNoOf(TODAY);
+  const wInfo = DATA.weeks[w-1];
+  const ws = new Date(wInfo.start), we = new Date(wInfo.end);
+  const focus = DATA.focusPairs[w-1] || {a:"—",b:"—"};
+
+  document.getElementById("subhead").innerHTML =
+    `<span>今日：<span class="mono">${fmt(TODAY)}</span>（${dowJP(TODAY)}）</span>
+     <span class="muted">／</span>
+     <span>今週：W${w}（${mmdd(ws)}〜${mmdd(we)}）</span>`;
+
+  document.getElementById("todayPill").textContent = `今日 ${mmdd(TODAY)}`;
+  document.getElementById("weekPill").textContent = `W${w}`;
+  document.getElementById("focusPill").textContent = `重点：${focus.a} / ${focus.b}`;
+
+  renderWeekCommand(done, w);
+
+  document.getElementById("commutePack").innerHTML = commutePackHTML();
+  const wkCarry = carry[`W${w}`] || {type:"A", label:""};
+  document.getElementById("carryType").value = wkCarry.type;
+  document.getElementById("carryLabel").value = wkCarry.label;
+
+  const fSubj = document.getElementById("filterSubj").value;
+  const fStat = document.getElementById("filterStatus").value;
+
+  renderDaily(done, fSubj, fStat);
+  renderWeekList(done, fSubj, fStat);
+  renderBars(done);
+  renderLate(done);
+}
+
+document.getElementById("filterSubj").addEventListener("change", render);
+document.getElementById("filterStatus").addEventListener("change", render);
+document.getElementById("dailySpan").addEventListener("change", render);
+
+document.getElementById("saveCarry").addEventListener("click", ()=>{
+  const w = weekNoOf(TODAY);
+  const carry = loadJson(LS_CARRY);
+  carry[`W${w}`] = {
+    type: document.getElementById("carryType").value,
+    label: document.getElementById("carryLabel").value.trim()
+  };
+  saveJson(LS_CARRY, carry);
+  render();
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  localStorage.removeItem(LS_DONE);
+  render();
+});
+
+document.getElementById("backupBtn").addEventListener("click", ()=>{
+  const payload = {
+    done: loadJson(LS_DONE),
+    carry: loadJson(LS_CARRY),
+    meta: { exportedAt: new Date().toISOString() }
+  };
+  const text = JSON.stringify(payload, null, 2);
+  prompt("この文字列をコピーして保存してください（メモ等へ）", text);
+});
+
+document.getElementById("restoreBtn").addEventListener("click", ()=>{
+  const text = prompt("バックアップ文字列を貼り付けてください");
+  if(!text) return;
+  try {
+    const payload = JSON.parse(text);
+    if(payload.done) localStorage.setItem(LS_DONE, JSON.stringify(payload.done));
+    if(payload.carry) localStorage.setItem(LS_CARRY, JSON.stringify(payload.carry));
+    render();
+  } catch(e) {
+    alert("読み込みに失敗しました。文字列が壊れている可能性があります。");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
